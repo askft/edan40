@@ -27,9 +27,14 @@ import Prelude hiding (return, fail)
 import Parser hiding (T)
 import qualified Dictionary
 
-data Expr = Num Integer | Var String | Add Expr Expr 
-       | Sub Expr Expr | Mul Expr Expr | Div Expr Expr
-         deriving Show
+data Expr = Num Integer
+          | Var String
+          | Add Expr Expr 
+          | Sub Expr Expr
+          | Mul Expr Expr
+          | Div Expr Expr
+          | Pow Expr Expr
+          deriving Show
 
 type T = Expr
 
@@ -42,7 +47,8 @@ var = word >-> Var
 num = number >-> Num
 
 mulOp = lit '*' >-> (\ _ -> Mul) !
-        lit '/' >-> (\ _ -> Div)
+        lit '/' >-> (\ _ -> Div) !
+        lit '^' >-> (\ _ -> Pow)
 
 addOp = lit '+' >-> (\ _ -> Add) !
         lit '-' >-> (\ _ -> Sub)
@@ -69,10 +75,22 @@ shw prec (Add t u) = parens (prec>5) (shw 5 t ++ "+" ++ shw 5 u)
 shw prec (Sub t u) = parens (prec>5) (shw 5 t ++ "-" ++ shw 6 u)
 shw prec (Mul t u) = parens (prec>6) (shw 6 t ++ "*" ++ shw 6 u)
 shw prec (Div t u) = parens (prec>6) (shw 6 t ++ "/" ++ shw 7 u)
+shw prec (Pow t u) = parens (prec>6) (shw 6 t ++ "^" ++ shw 7 u)
 
 value :: Expr -> Dictionary.T String Integer -> Integer
-value (Num n) _ = error "value not implemented"
+value (Num n)   _ = n
+value (Var v)   d = case Dictionary.lookup v d of
+                        Just r  -> r
+                        Nothing -> error ("Expr.value: " ++ v ++ "not defined.")
+value (Add a b) d = value a d + value b d
+value (Sub a b) d = value a d - value b d
+value (Pow a b) d = value a d ^ value b d
+value (Mul a b) d = value a d * value b d
+value (Div a b) d = case value b d of
+                        0 -> error "Expr.value: division by zero"
+                        _ -> value a d `div` value b d
 
 instance Parse Expr where
     parse = expr
     toString = shw 0
+
