@@ -1,8 +1,10 @@
-module Statement(T, parse, toString, fromString, exec) where
+module Statement (T, parse, toString, fromString, exec) where
+
 import Prelude hiding (return, fail)
 import Parser hiding (T)
 import qualified Dictionary
 import qualified Expr
+
 type T = Statement
 data Statement = Assignment String Expr.T
                | Skip
@@ -13,10 +15,6 @@ data Statement = Assignment String Expr.T
                | Write Expr.T
                | Comment String
                deriving Show
-
--- old
---assignment = word #- accept ":=" # Expr.parse #- require ";" >-> buildAss
---buildAss (v, e) = Assignment v e
 
 bldAssign    (v, e) = Assignment v e
 bldSkip           _ = Skip

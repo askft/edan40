@@ -30,7 +30,7 @@ p1 = fromString  ("\
 \    write r;\
 \    s := p*r+s;\                    
 \    p := p*10;\
-\    n :=q;\
+\    n := q;\
 \  end\
 \write s;")
 
@@ -49,7 +49,7 @@ rp1 = Program.exec p1 [1024, 2]
 p4 = fromString  ("\
 \read a;\
 \read b;\
-\-- a comment\
+\-- a comment\n\
 \s := 3;\
 \while a do\
 \  begin\
@@ -62,3 +62,4 @@ p4 = fromString  ("\
 \write a;")
 
 rp4 = Program.exec p4 [4,4]
+
