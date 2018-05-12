@@ -4,6 +4,7 @@ module TestProgram where
 import Program
 
 p, p1, p2, p3 :: Program.T
+
 p = fromString  ("\
 \read k;\
 \read n;\
@@ -34,17 +35,9 @@ p1 = fromString  ("\
 \  end\
 \write s;")
 
-sp = putStr (toString p)
-
-sp1 = putStr (toString p1)
-
 p2 = fromString (toString p)
 
 p3 = fromString (toString p1)
-
-rp = Program.exec p [3,16]
-
-rp1 = Program.exec p1 [1024, 2]
 
 p4 = fromString  ("\
 \read a;\
@@ -61,5 +54,11 @@ p4 = fromString  ("\
 \  end\
 \write a;")
 
+sp  = putStr (toString p)
+sp1 = putStr (toString p1)
+sp4 = putStr (toString p4)
+
+rp  = Program.exec p [3,16]
+rp1 = Program.exec p1 [1024, 2]
 rp4 = Program.exec p4 [4,4]
 

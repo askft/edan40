@@ -1,9 +1,8 @@
-
 module Main where
 
-import TestParser       -- OK
-import TestExpr         -- OK
-import TestStatement    -- OK
+import TestParser
+import TestExpr
+import TestStatement
 import TestProgram
 
 main = do putStrLn "Hello. Use GHCi."

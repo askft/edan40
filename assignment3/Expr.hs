@@ -38,31 +38,35 @@ data Expr = Num Integer
 
 type T = Expr
 
-var, num, factor, term, expr :: Parser Expr
+var, num, pow, factor, term, expr :: Parser Expr
 
-term', expr' :: Expr -> Parser Expr
+factor', term', expr' :: Expr -> Parser Expr
 
 var = word >-> Var
 
 num = number >-> Num
 
+powOp = lit '^' >-> (\ _ -> Pow)
+
 mulOp = lit '*' >-> (\ _ -> Mul) !
-        lit '/' >-> (\ _ -> Div) !
-        lit '^' >-> (\ _ -> Pow)
+        lit '/' >-> (\ _ -> Div)
 
 addOp = lit '+' >-> (\ _ -> Add) !
         lit '-' >-> (\ _ -> Sub)
 
 bldOp e (oper,e') = oper e e'
 
-factor = num !
-         var !
-         lit '(' -# expr #- lit ')' !
-         err "illegal factor"
-             
+pow = num !
+      var !
+      lit '(' -# expr #- lit ')' !
+      err "illegal factor"
+
+factor' e = powOp # pow >-> bldOp e #> factor' ! return e
+factor = pow #> factor'
+
 term' e = mulOp # factor >-> bldOp e #> term' ! return e
 term = factor #> term'
-       
+
 expr' e = addOp # term >-> bldOp e #> expr' ! return e
 expr = term #> expr'
 
@@ -75,7 +79,7 @@ shw prec (Add t u) = parens (prec>5) (shw 5 t ++ " + " ++ shw 5 u)
 shw prec (Sub t u) = parens (prec>5) (shw 5 t ++ " - " ++ shw 6 u)
 shw prec (Mul t u) = parens (prec>6) (shw 6 t ++ "*" ++ shw 6 u)
 shw prec (Div t u) = parens (prec>6) (shw 6 t ++ "/" ++ shw 7 u)
-shw prec (Pow t u) = parens (prec>6) (shw 6 t ++ "^" ++ shw 7 u)
+shw prec (Pow t u) = parens (prec>7) (shw 7 t ++ "^" ++ shw 7 u)
 
 value :: Expr -> Dictionary.T String Integer -> Integer
 value (Num n)   _ = n
